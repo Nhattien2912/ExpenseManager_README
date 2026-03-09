@@ -43,21 +43,27 @@ Android sử dụng kiến trúc:
 * TailwindCSS
 ---
 # 📸 Screenshots
+
 ## Android App
-| Dashboard                            | Budget                               |
-| ------------------------------------ | ------------------------------------ |
-| ![](screenshots/dashboard-chart.png) | ![](screenshots/budget-overview.png) |
-| Features                           | AI Assistant                      |
-| ---------------------------------- | --------------------------------- |
-| ![](screenshots/features-menu.png) | ![](screenshots/ai-assistant.png) |
+
+| Dashboard | Budget |
+|-----------|-------|
+| ![](images/App/dashboard-chart.jpg) | ![](images/App/budget-overview.jpg) |
+
+| Features | AI Assistant |
+|----------|-------------|
+| ![](images/App/features-menu.jpg) | ![](images/App/ai-assistant.jpg) |
+
+| Play Store |
+|-----------|
+| ![](images/App/playstore-page.jpg) |
+
 ---
+
 ## Web Dashboard
-| Overview                           | Transactions                          |
-| ---------------------------------- | ------------------------------------- |
-| ![](screenshots/web-dashboard.png) | ![](screenshots/web-transactions.png) |
----
-# 🎥 Demo
-Repository này chỉ cung cấp:
-* 📷 **Ảnh giao diện**
+
+| Overview | Transactions |
+|----------|-------------|
+| ![](images/Web/web-dashboard.png) | ![](images/Web/web-transactions.png) | giao diện**
 * 🧩 **Mô tả kiến trúc hệ thống**
 Source code sẽ được **chia sẻ khi phỏng vấn kỹ thuật**.
