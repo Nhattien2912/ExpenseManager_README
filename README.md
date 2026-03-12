@@ -1,6 +1,6 @@
 # 💰 Expense Manager
 
-**Expense Manager** là hệ thống **quản lý tài chính cá nhân đa nền tảng** cho phép người dùng theo dõi dòng tiền, tiết kiệm, công nợ và danh mục tài sản.
+**Expense Manager** là hệ thống **quản lý tài chính cá nhân đa nền tảng** giúp người dùng theo dõi thu nhập, chi tiêu, tiết kiệm, công nợ và danh mục tài sản.
 
 Hệ thống gồm hai thành phần chính:
 
@@ -39,8 +39,9 @@ Dữ liệu được **đồng bộ theo thời gian thực** thông qua **Fireb
 
 * Quản lý giao dịch **thu nhập, chi tiêu và chuyển tiền**
 * Quản lý **ví tiền và danh mục chi tiêu**
-* Thống kê tài chính **theo ngày và theo tháng**
-* Quản lý **công nợ cá nhân và khoản vay**
+* Thống kê tài chính **theo ngày / tháng**
+* Quản lý **công nợ cá nhân**
+* Quản lý **khoản vay ngân hàng**
 * **Giao dịch định kỳ (Recurring Transactions)**
 * **Cảnh báo ngân sách**
 * **Widget Android** hiển thị nhanh tình trạng tài chính
@@ -49,13 +50,59 @@ Dữ liệu được **đồng bộ theo thời gian thực** thông qua **Fireb
 
 ---
 
-## 🌐 Web Dashboard
+# 💰 Savings System
 
-* Đăng nhập Google bằng **Firebase Authentication**
-* CRUD **giao dịch, danh mục và ví**
-* **Tìm kiếm và lọc** lịch sử giao dịch
-* **Biểu đồ thống kê** chi tiêu theo tháng
-* Đồng bộ dữ liệu với Android thông qua **Cloud Firestore**
+Ứng dụng hỗ trợ quản lý tiết kiệm theo hai lớp:
+
+* **Savings transactions** (gửi / rút tiền tiết kiệm)
+* **Savings books** với lãi suất và kỳ hạn
+
+Cho phép:
+
+* theo dõi lịch sử tiết kiệm
+* quản lý nhiều sổ tiết kiệm
+* nhóm mục tiêu tiết kiệm theo bucket
+
+---
+
+# 💳 Debt & Loan Tracking
+
+Ứng dụng hỗ trợ quản lý:
+
+* **công nợ cá nhân**
+* **khoản vay ngân hàng**
+
+Tính năng:
+
+* theo dõi số tiền đã trả
+* nhắc ngày đến hạn
+* tự động tạo giao dịch thanh toán khoản vay
+
+---
+
+# 📊 Market Monitoring
+
+Ứng dụng tích hợp dữ liệu thị trường để hỗ trợ quản lý tài sản.
+
+Theo dõi:
+
+* giá **vàng**
+* tỷ giá **ngoại tệ**
+* giá **xăng dầu**
+
+Dữ liệu được tổng hợp từ nhiều nguồn và lưu lịch sử để phân tích xu hướng.
+
+---
+
+# 🌐 Web Dashboard
+
+Web dashboard cho phép:
+
+* đăng nhập Google (**Firebase Authentication**)
+* CRUD **giao dịch, ví và danh mục**
+* **tìm kiếm và lọc giao dịch**
+* **biểu đồ thống kê chi tiêu**
+* quản lý dữ liệu tài chính từ trình duyệt
 
 ---
 
@@ -81,17 +128,43 @@ Firebase Firestore (Cloud Sync)
 Web Dashboard
 ```
 
-### Android
+### Android Architecture
 
-* **Local-first architecture**
-* Lưu trữ dữ liệu cục bộ bằng **Room Database**
-* Đồng bộ dữ liệu lên **Firebase Firestore**
+Android sử dụng kiến trúc:
 
-### Web
+```
+MVVM + Repository + Room Database
+```
 
-* **Cloud-first**
-* Truy cập trực tiếp dữ liệu từ **Firestore**
-* Hiển thị dashboard và báo cáo
+Các thành phần chính:
+
+* ViewModel
+* Repository
+* Room Database
+* Firebase Firestore sync
+* WorkManager background jobs
+
+---
+
+# 🔄 Data Synchronization
+
+Dữ liệu được lưu theo cấu trúc:
+
+```
+users/{uid}/transactions
+users/{uid}/wallets
+users/{uid}/categories
+users/{uid}/savings_books
+users/{uid}/market_history
+users/{uid}/market_gold_assets
+users/{uid}/market_currency_assets
+```
+
+Điều này cho phép:
+
+* Android và Web **chia sẻ cùng dữ liệu**
+* đồng bộ **real-time**
+* sử dụng **multi-device**
 
 ---
 
@@ -101,9 +174,9 @@ Web Dashboard
 
 AI có thể:
 
-* Phân tích dữ liệu tài chính
-* Trả lời câu hỏi về chi tiêu
-* Tạo giao dịch từ **ngôn ngữ tự nhiên**
+* phân tích dữ liệu tài chính hiện tại
+* trả lời câu hỏi về chi tiêu
+* tạo giao dịch từ **ngôn ngữ tự nhiên**
 
 Ví dụ:
 
@@ -112,6 +185,53 @@ Ví dụ:
 ```
 
 AI sẽ tự động tạo một **transaction chi tiêu** trong hệ thống.
+
+---
+
+# 🧩 Sample Code
+
+Ví dụ một đoạn code Kotlin trong module **Market Data** sử dụng **Kotlin Coroutines** để tải dữ liệu thị trường (vàng, ngoại tệ, xăng) song song.
+
+```kotlin
+// Fetch market data concurrently (gold, currency, fuel)
+suspend fun loadMarketSnapshot(): MarketSnapshot = coroutineScope {
+
+    // Load gold prices from aggregator
+    val goldDeferred = async {
+        runCatching { goldAggregator.loadGoldPrices() }
+    }
+
+    // Load currency exchange rates
+    val currencyDeferred = async {
+        runCatching { fetchCurrencySnapshot() }
+    }
+
+    // Load fuel prices
+    val fuelDeferred = async {
+        runCatching { fuelDataSource.loadFuelSnapshot() }
+    }
+
+    // Await results from parallel API calls
+    val goldResult = goldDeferred.await()
+    val currencyResult = currencyDeferred.await()
+    val fuelResult = fuelDeferred.await()
+
+    // Combine results into a single market snapshot
+    MarketSnapshot(
+        goldPrices = goldResult.getOrDefault(emptyList()), // fallback if API fails
+        currencyRates = currencyResult.getOrNull(),
+        fuelPrices = fuelResult.getOrNull(),
+        fetchedAt = System.currentTimeMillis()
+    )
+}
+```
+
+Đoạn code trên thể hiện:
+
+* **Kotlin Coroutines (`async / await`)**
+* gọi nhiều API song song để giảm thời gian chờ
+* xử lý lỗi an toàn bằng `runCatching`
+* tổng hợp dữ liệu thị trường thành một snapshot dùng cho dashboard
 
 ---
 
@@ -136,57 +256,6 @@ AI sẽ tự động tạo một **transaction chi tiêu** trong hệ thống.
 * TailwindCSS
 * Firebase SDK
 
-# 🧩 Sample Code
-
-Ví dụ một đoạn code Kotlin sử dụng Coroutines để tải dữ liệu thị trường
-(vàng, ngoại tệ, xăng) song song nhằm giảm thời gian chờ API.
-
-```kotlin
-suspend fun loadMarketSnapshot(): MarketSnapshot = coroutineScope {
-
-    val goldDeferred = async {
-        runCatching { goldAggregator.loadGoldPrices() }
-    }
-
-    val currencyDeferred = async {
-        runCatching { fetchCurrencySnapshot() }
-    }
-
-    val fuelDeferred = async {
-        runCatching { fuelDataSource.loadFuelSnapshot() }
-    }
-
-    val goldResult = goldDeferred.await()
-    val currencyResult = currencyDeferred.await()
-    val fuelResult = fuelDeferred.await()
-
-    MarketSnapshot(
-        goldPrices = goldResult.getOrDefault(emptyList()),
-        currencyRates = currencyResult.getOrNull(),
-        fuelPrices = fuelResult.getOrNull(),
-        fetchedAt = System.currentTimeMillis()
-    )
-}
----
-
-# 🔄 Data Synchronization
-
-Dữ liệu được lưu theo cấu trúc:
-
-```
-users/{uid}/transactions
-users/{uid}/wallets
-users/{uid}/categories
-users/{uid}/savings_books
-users/{uid}/market_history
-```
-
-Điều này cho phép:
-
-* Android và Web **chia sẻ cùng dữ liệu**
-* Đồng bộ **real-time**
-* Hỗ trợ **multi-device usage**
-
 ---
 
 # 🔐 Security
@@ -200,12 +269,16 @@ users/{uid}/market_history
 
 # 🎬 Demo
 
+Web Dashboard:
+
+[https://expense-manager-web--expensemanager-69017.us-east4.hosted.app/](https://expense-manager-web--expensemanager-69017.us-east4.hosted.app/)
+
 Repository này chỉ cung cấp:
 
 * hình ảnh giao diện
 * mô tả kiến trúc hệ thống
 
-Source code **không được công khai** và sẽ được **chia sẻ trong technical interview nếu cần**.
+**Source code không được công khai** và sẽ được chia sẻ trong **technical interview nếu cần**.
 
 ---
 
@@ -213,3 +286,6 @@ Source code **không được công khai** và sẽ được **chia sẻ trong t
 
 **Trịnh Nhật Tiến**
 Android Developer (Fresher)
+
+GitHub:
+[https://github.com/Nhattien2912](https://github.com/Nhattien2912)
