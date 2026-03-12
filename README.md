@@ -15,13 +15,27 @@ Dữ liệu được **đồng bộ theo thời gian thực** thông qua **Fireb
 
 ## 📱 Android App
 
+### Dashboard & Budget
+
 | Dashboard                           | Budget Overview                     |
 | ----------------------------------- | ----------------------------------- |
 | ![](images/App/dashboard-chart.jpg) | ![](images/App/budget-overview.jpg) |
 
+---
+
+### Features & AI Assistant
+
 | Feature Menu                      | AI Assistant                     |
 | --------------------------------- | -------------------------------- |
 | ![](images/App/features-menu.jpg) | ![](images/App/ai-assistant.jpg) |
+
+---
+
+### Market Monitoring
+
+| Market Overview                     | Gold Prices                     |
+| ----------------------------------- | ------------------------------- |
+| ![](images/App/market-overview.jpg) | ![](images/App/gold-prices.jpg) |
 
 ---
 
@@ -218,7 +232,7 @@ suspend fun loadMarketSnapshot(): MarketSnapshot = coroutineScope {
 
     // Combine results into a single market snapshot
     MarketSnapshot(
-        goldPrices = goldResult.getOrDefault(emptyList()), // fallback if API fails
+        goldPrices = goldResult.getOrDefault(emptyList()),
         currencyRates = currencyResult.getOrNull(),
         fuelPrices = fuelResult.getOrNull(),
         fetchedAt = System.currentTimeMillis()
@@ -231,7 +245,7 @@ suspend fun loadMarketSnapshot(): MarketSnapshot = coroutineScope {
 * **Kotlin Coroutines (`async / await`)**
 * gọi nhiều API song song để giảm thời gian chờ
 * xử lý lỗi an toàn bằng `runCatching`
-* tổng hợp dữ liệu thị trường thành một snapshot dùng cho dashboard
+* tổng hợp dữ liệu thị trường thành một snapshot
 
 ---
 
@@ -278,7 +292,7 @@ Repository này chỉ cung cấp:
 * hình ảnh giao diện
 * mô tả kiến trúc hệ thống
 
-**Source code không được công khai** và sẽ được chia sẻ trong **technical interview nếu cần**.
+Source code **không được công khai** và sẽ được chia sẻ trong **technical interview nếu cần**.
 
 ---
 
@@ -288,4 +302,5 @@ Repository này chỉ cung cấp:
 Android Developer (Fresher)
 
 GitHub:
+
 [https://github.com/Nhattien2912](https://github.com/Nhattien2912)
