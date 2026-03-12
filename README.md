@@ -136,6 +136,37 @@ AI sẽ tự động tạo một **transaction chi tiêu** trong hệ thống.
 * TailwindCSS
 * Firebase SDK
 
+# 🧩 Sample Code
+
+Ví dụ một đoạn code Kotlin sử dụng Coroutines để tải dữ liệu thị trường
+(vàng, ngoại tệ, xăng) song song nhằm giảm thời gian chờ API.
+
+```kotlin
+suspend fun loadMarketSnapshot(): MarketSnapshot = coroutineScope {
+
+    val goldDeferred = async {
+        runCatching { goldAggregator.loadGoldPrices() }
+    }
+
+    val currencyDeferred = async {
+        runCatching { fetchCurrencySnapshot() }
+    }
+
+    val fuelDeferred = async {
+        runCatching { fuelDataSource.loadFuelSnapshot() }
+    }
+
+    val goldResult = goldDeferred.await()
+    val currencyResult = currencyDeferred.await()
+    val fuelResult = fuelDeferred.await()
+
+    MarketSnapshot(
+        goldPrices = goldResult.getOrDefault(emptyList()),
+        currencyRates = currencyResult.getOrNull(),
+        fuelPrices = fuelResult.getOrNull(),
+        fetchedAt = System.currentTimeMillis()
+    )
+}
 ---
 
 # 🔄 Data Synchronization
