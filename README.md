@@ -207,35 +207,35 @@ AI sẽ tự động tạo một **transaction chi tiêu** trong hệ thống.
 Ví dụ một đoạn code Kotlin trong module **Market Data** sử dụng **Kotlin Coroutines** để tải dữ liệu thị trường (vàng, ngoại tệ, xăng) song song.
 
 ```kotlin
-// Fetch market data concurrently (gold, currency, fuel)
+// Tải dữ liệu thị trường song song (vàng, ngoại tệ, xăng)
 suspend fun loadMarketSnapshot(): MarketSnapshot = coroutineScope {
 
-    // Load gold prices from aggregator
+    // Gọi API lấy giá vàng
     val goldDeferred = async {
         runCatching { goldAggregator.loadGoldPrices() }
     }
 
-    // Load currency exchange rates
+    // Gọi API lấy tỷ giá ngoại tệ
     val currencyDeferred = async {
         runCatching { fetchCurrencySnapshot() }
     }
 
-    // Load fuel prices
+    // Gọi API lấy giá xăng dầu
     val fuelDeferred = async {
         runCatching { fuelDataSource.loadFuelSnapshot() }
     }
 
-    // Await results from parallel API calls
+    // Chờ kết quả từ các API chạy song song
     val goldResult = goldDeferred.await()
     val currencyResult = currencyDeferred.await()
     val fuelResult = fuelDeferred.await()
 
-    // Combine results into a single market snapshot
+    // Tổng hợp dữ liệu thành snapshot thị trường
     MarketSnapshot(
-        goldPrices = goldResult.getOrDefault(emptyList()),
+        goldPrices = goldResult.getOrDefault(emptyList()), // fallback nếu API lỗi
         currencyRates = currencyResult.getOrNull(),
         fuelPrices = fuelResult.getOrNull(),
-        fetchedAt = System.currentTimeMillis()
+        fetchedAt = System.currentTimeMillis() // thời điểm lấy dữ liệu
     )
 }
 ```
