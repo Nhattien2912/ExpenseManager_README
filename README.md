@@ -1,149 +1,3 @@
-# 💰 Expense Manager
-
-**Expense Manager** là hệ thống **quản lý tài chính cá nhân đa nền tảng** giúp người dùng theo dõi thu nhập, chi tiêu, tiết kiệm, công nợ và danh mục tài sản.
-
-Hệ thống gồm hai thành phần chính:
-
-* 📱 **Android App** — ứng dụng chính để nhập và quản lý dữ liệu tài chính
-* 🌐 **Web Dashboard** — xem báo cáo và quản lý dữ liệu trên trình duyệt
-
-Dữ liệu được **đồng bộ theo thời gian thực** thông qua **Firebase Authentication và Cloud Firestore**.
-
----
-
-# 📸 Screenshots
-
-## 📱 Android App
-
-### Dashboard & Budget
-
-| Dashboard                           | Budget Overview                     |
-| ----------------------------------- | ----------------------------------- |
-| ![](images/App/dashboard-chart.jpg) | ![](images/App/budget-overview.jpg) |
-
----
-
-### Features & AI Assistant
-
-| Feature Menu                      | AI Assistant                     |
-| --------------------------------- | -------------------------------- |
-| ![](images/App/features-menu.jpg) | ![](images/App/ai-assistant.jpg) |
-
----
-
-### Market Monitoring
-
-| Market Overview                     | Gold Prices                     |
-| ----------------------------------- | ------------------------------- |
-| ![](images/App/market-overview.jpg) | ![](images/App/gold-prices.jpg) |
-
----
-
-## 🌐 Web Dashboard
-
-| Dashboard                         | Transactions                         |
-| --------------------------------- | ------------------------------------ |
-| ![](images/Web/web-dashboard.png) | ![](images/Web/web-transactions.png) |
-
----
-
-# 🚀 Core Features
-
-## 📱 Android Application
-
-* Quản lý giao dịch **thu nhập, chi tiêu và chuyển tiền**
-* Quản lý **ví tiền và danh mục chi tiêu**
-* Thống kê tài chính **theo ngày / tháng**
-* Quản lý **công nợ cá nhân**
-* Quản lý **khoản vay ngân hàng**
-* **Giao dịch định kỳ (Recurring Transactions)**
-* **Cảnh báo ngân sách**
-* **Widget Android** hiển thị nhanh tình trạng tài chính
-* **Khóa ứng dụng bằng sinh trắc học**
-* **AI trợ lý tài chính** hỗ trợ tạo giao dịch bằng ngôn ngữ tự nhiên
-
----
-
-# 💰 Savings System
-
-Ứng dụng hỗ trợ quản lý tiết kiệm theo hai lớp:
-
-* **Savings transactions** (gửi / rút tiền tiết kiệm)
-* **Savings books** với lãi suất và kỳ hạn
-
-Cho phép:
-
-* theo dõi lịch sử tiết kiệm
-* quản lý nhiều sổ tiết kiệm
-* nhóm mục tiêu tiết kiệm theo bucket
-
----
-
-# 💳 Debt & Loan Tracking
-
-Ứng dụng hỗ trợ quản lý:
-
-* **công nợ cá nhân**
-* **khoản vay ngân hàng**
-
-Tính năng:
-
-* theo dõi số tiền đã trả
-* nhắc ngày đến hạn
-* tự động tạo giao dịch thanh toán khoản vay
-
----
-
-# 📊 Market Monitoring
-
-Ứng dụng tích hợp dữ liệu thị trường để hỗ trợ quản lý tài sản.
-
-Theo dõi:
-
-* giá **vàng**
-* tỷ giá **ngoại tệ**
-* giá **xăng dầu**
-
-Dữ liệu được tổng hợp từ nhiều nguồn và lưu lịch sử để phân tích xu hướng.
-
----
-
-# 🌐 Web Dashboard
-
-Web dashboard cho phép:
-
-* đăng nhập Google (**Firebase Authentication**)
-* CRUD **giao dịch, ví và danh mục**
-* **tìm kiếm và lọc giao dịch**
-* **biểu đồ thống kê chi tiêu**
-* quản lý dữ liệu tài chính từ trình duyệt
-
----
-
-# 🏗 System Architecture
-
-Hệ thống được thiết kế theo mô hình **multi-platform architecture**.
-
-Android hoạt động theo mô hình **offline-first**, trong khi web dashboard hoạt động theo **cloud-first**.
-
-### Data Flow
-
-```
-Android UI
-   ↓
-ViewModel
-   ↓
-Repository
-   ↓
-Room Database (Local Storage)
-   ↓
-Firebase Firestore (Cloud Sync)
-   ↑
-Web Dashboard
-```
-
-### Android Architecture
-
 Android sử dụng kiến trúc:
 
 ```
@@ -162,16 +16,24 @@ Các thành phần chính:
 
 # 🔄 Data Synchronization
 
-Dữ liệu được lưu theo cấu trúc:
+App ghi vào Room trước, sau đó **mirror lên Firestore** (ghi theo document id cố định + `SetOptions.merge()` để tránh nhân bản và không xoá field khi mở rộng schema).
+
+Dữ liệu được lưu theo cấu trúc dưới `users/{uid}/`:
 
 ```
 users/{uid}/transactions
-users/{uid}/wallets
 users/{uid}/categories
-users/{uid}/savings_books
-users/{uid}/market_history
+users/{uid}/wallets
+users/{uid}/recurringTransactions
+users/{uid}/savings_jars
+users/{uid}/ai_reports
+
+# Market & sổ tiết kiệm
 users/{uid}/market_gold_assets
 users/{uid}/market_currency_assets
+users/{uid}/market_history
+users/{uid}/savings_books
+users/{uid}/savings_meta
 ```
 
 Điều này cho phép:
@@ -180,17 +42,26 @@ users/{uid}/market_currency_assets
 * đồng bộ **real-time**
 * sử dụng **multi-device**
 
+> Lưu ý: một số dữ liệu chỉ lưu local (Room-only) và không sync lên cloud, ví dụ **ngân sách (budget)** và **tags**.
+
 ---
 
 # 🤖 AI Financial Assistant
 
-Ứng dụng tích hợp **AI trợ lý tài chính** sử dụng **Firebase AI / Gemini**.
+Ứng dụng tích hợp **AI trợ lý tài chính**, được thiết kế **chịu lỗi theo chuỗi nhiều nhà cung cấp (multi-provider fallback)** để vừa tận dụng các LLM miễn phí vừa đảm bảo độ sẵn sàng:
+
+```
+Mimo → Groq (Llama 3.3) → OpenRouter → Firebase AI / Gemini (lưới cuối)
+```
+
+* API key được giấu sau **proxy web** (xác thực bằng Firebase ID token), app không giữ key.
+* Tách riêng luồng **text** và **vision** — chỉ provider có khả năng đọc ảnh mới nhận ảnh hoá đơn (OCR).
 
 AI có thể:
 
 * phân tích dữ liệu tài chính hiện tại
 * trả lời câu hỏi về chi tiêu
-* tạo giao dịch từ **ngôn ngữ tự nhiên**
+* tạo giao dịch từ **ngôn ngữ tự nhiên** (gõ / nói / chụp hoá đơn)
 
 Ví dụ:
 
@@ -198,7 +69,7 @@ Ví dụ:
 "Tôi ăn phở 50k sáng nay"
 ```
 
-AI sẽ tự động tạo một **transaction chi tiêu** trong hệ thống.
+AI sẽ tạo một **bản nháp giao dịch chi tiêu** kèm độ tin cậy; người dùng xác nhận trước khi lưu thật.
 
 ---
 
@@ -226,16 +97,23 @@ suspend fun loadMarketSnapshot(): MarketSnapshot = coroutineScope {
     }
 
     // Chờ kết quả từ các API chạy song song
-    val goldResult = goldDeferred.await()
-    val currencyResult = currencyDeferred.await()
-    val fuelResult = fuelDeferred.await()
+    val gold = goldDeferred.await().getOrDefault(emptyList())   // fallback nếu API lỗi
+    val currency = currencyDeferred.await().getOrNull()
+    val fuel = fuelDeferred.await().getOrNull()
 
     // Tổng hợp dữ liệu thành snapshot thị trường
+    val marketData = MarketData(
+        goldPrices = gold,
+        currencyRates = currency?.rates.orEmpty(),
+        fuelPrices = fuel.orEmpty()
+    )
+
     MarketSnapshot(
-        goldPrices = goldResult.getOrDefault(emptyList()), // fallback nếu API lỗi
-        currencyRates = currencyResult.getOrNull(),
-        fuelPrices = fuelResult.getOrNull(),
-        fetchedAt = System.currentTimeMillis() // thời điểm lấy dữ liệu
+        marketData = marketData,
+        previousPrices1D = emptyMap(),
+        previousPrices7D = emptyMap(),
+        chartPoints = emptyList(),
+        isFromCache = false
     )
 }
 ```
@@ -244,7 +122,7 @@ suspend fun loadMarketSnapshot(): MarketSnapshot = coroutineScope {
 
 * **Kotlin Coroutines (`async / await`)**
 * gọi nhiều API song song để giảm thời gian chờ
-* xử lý lỗi an toàn bằng `runCatching`
+* xử lý lỗi an toàn bằng `runCatching` (mỗi nguồn lỗi độc lập, không kéo sập cả snapshot)
 * tổng hợp dữ liệu thị trường thành một snapshot
 
 ---
@@ -254,13 +132,18 @@ suspend fun loadMarketSnapshot(): MarketSnapshot = coroutineScope {
 ## Android
 
 * Kotlin
-* MVVM Architecture
+* MVVM Architecture + Repository
 * Room Database
+* Kotlin Coroutines & Flow
 * WorkManager
 * Firebase Authentication
 * Cloud Firestore
-* Firebase AI (Gemini)
+* Firebase AI (Gemini) + multi-provider AI (Mimo / Groq / OpenRouter)
+* Supabase (dữ liệu thị trường)
+* Retrofit + kotlinx.serialization / Gson
 * MPAndroidChart
+* AndroidX Biometric
+* Firebase Crashlytics & Analytics
 
 ## Web
 
@@ -268,16 +151,19 @@ suspend fun loadMarketSnapshot(): MarketSnapshot = coroutineScope {
 * React
 * TypeScript
 * TailwindCSS
-* Firebase SDK
+* Firebase SDK (client + admin)
+* Supabase JS
+* Recharts
 
 ---
 
 # 🔐 Security
 
 * Firebase Authentication (Google Sign-In)
-* Firebase App Check
+* Firebase App Check (Play Integrity)
 * Biometric lock trên Android
 * Firestore security rules theo `userId`
+* AI proxy yêu cầu Firebase ID token (API key không nằm trong app)
 
 ---
 
